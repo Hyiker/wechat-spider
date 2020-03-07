@@ -137,7 +137,7 @@ python(3) export_excel.py
 
 ### 4. Exception:DISCARD without MULTI
 
-![-w406](media/15632498867519.jpg)
+使用管理员模式启动redis
 
 ### 5. 正常启动后抓不到包
 
