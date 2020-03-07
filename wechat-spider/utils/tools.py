@@ -7,15 +7,16 @@ Created on 2019/5/19 3:03 PM
 @author:
 '''
 import datetime
+import hashlib
 import json
 import re
 import ssl
 import time
 import uuid
 from pprint import pformat
-import hashlib
 
 import pymysql
+
 from utils.log import log
 
 # 全局取消ssl证书验证
@@ -192,7 +193,8 @@ def make_insert_sql(table, data, auto_update=False, update_columns=(), insert_ig
         if not isinstance(update_columns, (tuple, list)):
             update_columns = [update_columns]
         update_columns_ = ', '.join(["{key}=values({key})".format(key=key) for key in update_columns])
-        sql = 'insert%s into {table} {keys} values {values} on duplicate key update %s' % (' ignore' if insert_ignore else '', update_columns_)
+        sql = 'insert%s into {table} {keys} values {values} on duplicate key update %s' % (
+            ' ignore' if insert_ignore else '', update_columns_)
 
     elif auto_update:
         sql = 'replace into {table} {keys} values {values}'
@@ -267,11 +269,14 @@ def make_batch_sql(table, datas, auto_update=False, update_columns=()):
         if not isinstance(update_columns, (tuple, list)):
             update_columns = [update_columns]
         update_columns_ = ', '.join(["`{key}`=values(`{key}`)".format(key=key) for key in update_columns])
-        sql = 'insert into {table} {keys} values {values_placeholder} on duplicate key update {update_columns}'.format(table=table, keys=keys, values_placeholder=values_placeholder, update_columns=update_columns_)
+        sql = 'insert into {table} {keys} values {values_placeholder} on duplicate key update {update_columns}'.format(
+            table=table, keys=keys, values_placeholder=values_placeholder, update_columns=update_columns_)
     elif auto_update:
-        sql = 'replace into {table} {keys} values {values_placeholder}'.format(table=table, keys=keys, values_placeholder=values_placeholder)
+        sql = 'replace into {table} {keys} values {values_placeholder}'.format(table=table, keys=keys,
+                                                                               values_placeholder=values_placeholder)
     else:
-        sql = 'insert ignore into {table} {keys} values {values_placeholder}'.format(table=table, keys=keys, values_placeholder=values_placeholder)
+        sql = 'insert ignore into {table} {keys} values {values_placeholder}'.format(table=table, keys=keys,
+                                                                                     values_placeholder=values_placeholder)
 
     return sql, values
 

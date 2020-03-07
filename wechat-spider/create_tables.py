@@ -7,8 +7,8 @@ Created on 2019/5/20 11:47 PM
 @author:
 '''
 
-from db.mysqldb import MysqlDB
 from config import config
+from db.mysqldb import MysqlDB
 
 
 def _create_table(mysqldb, sql):
@@ -19,10 +19,10 @@ def create_table():
     wechat_article_list_table = '''
     CREATE TABLE IF NOT EXISTS `wechat_article_list` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-      `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `title` varchar(255) UNIQUE COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `digest` varchar(2000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-      `source_url` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `source_url` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL  ,
       `cover` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `subtype` int(11) DEFAULT NULL,
       `is_multi` int(11) DEFAULT NULL,
@@ -44,7 +44,7 @@ def create_table():
     CREATE TABLE IF NOT EXISTS `wechat_article_task` (
       `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
       `sn` varchar(50) DEFAULT NULL,
-      `article_url` varchar(255) DEFAULT NULL,
+      `article_url` varchar(255) DEFAULT NULL UNIQUE ,
       `state` int(11) DEFAULT '0' COMMENT '文章抓取状态，0 待抓取 2 抓取中 1 抓取完毕 -1 抓取失败',
       `__biz` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       PRIMARY KEY (`id`),

@@ -7,12 +7,13 @@ Created on 2019/5/15 11:14 PM
 @author:
 '''
 
+import random
+
+import utils.tools as tools
+from config import config
 from db.mysqldb import MysqlDB
 from db.redisdb import RedisDB
-import utils.tools as tools
 from utils.log import log
-import random
-from config import config
 
 
 class TaskManager():
@@ -32,9 +33,11 @@ class TaskManager():
         self._last_article_publish_time = self._task_root_key + ':h_last_article_publish_time'
         self._new_last_article_publish_time = self._task_root_key + ':h_new_last_article_publish_time'
 
-        self._ignore_haved_crawl_today_article_account = config.get('spider').get('ignore_haved_crawl_today_article_account')
+        self._ignore_haved_crawl_today_article_account = config.get('spider').get(
+            'ignore_haved_crawl_today_article_account')
         self._monitor_interval = config.get('spider').get('monitor_interval')
-        self._zombie_account_not_publish_article_days = config.get('spider').get('zombie_account_not_publish_article_days')
+        self._zombie_account_not_publish_article_days = config.get('spider').get(
+            'zombie_account_not_publish_article_days')
         self._spider_interval_min = config.get('spider').get('spider_interval').get('min_sleep_time')
         self._spider_interval_max = config.get('spider').get('spider_interval').get('max_sleep_time')
         self._spider_interval_max = config.get('spider').get('spider_interval').get('max_sleep_time')
@@ -59,7 +62,8 @@ class TaskManager():
         """
         task = self.__get_task_from_redis(self._account_task_key)
         if not task:
-            publish_time_condition = "AND last_publish_time < '{today}'".format(today=tools.get_current_date(date_format='%Y-%m-%d' + ' 00:00:00')) if self._ignore_haved_crawl_today_article_account else ''
+            publish_time_condition = "AND last_publish_time < '{today}'".format(today=tools.get_current_date(
+                date_format='%Y-%m-%d' + ' 00:00:00')) if self._ignore_haved_crawl_today_article_account else ''
             sql = '''
                 SELECT
                     __biz,
@@ -136,6 +140,12 @@ class TaskManager():
             if data:  # [(None,)] / []
                 last_publish_time = str(data[0][0] or '')
                 self.record_last_article_publish_time(__biz, last_publish_time)
+            else:
+                sql_ = "insert into wechat_account_task(__biz) values ('%s')" % __biz
+                self._mysqldb.add(sql_)
+                data = self._mysqldb.find(sql)
+                last_publish_time = str(data[0][0] or '')
+                self.record_last_article_publish_time(__biz, last_publish_time)
 
         if last_publish_time is None:
             return
@@ -145,7 +155,7 @@ class TaskManager():
 
         return False
 
-    def is_in_crawl_time_range(self, publish_time):
+    def is_in_crawl_time_range(self, __biz, publish_time):
         """
         是否在时间范围
         :param publish_time:
@@ -158,7 +168,7 @@ class TaskManager():
             if publish_time > self._crawl_time_range[0]:
                 return TaskManager.NOT_REACH_TIME_RANGE
 
-            if publish_time <= self._crawl_time_range[0] and publish_time >= self._crawl_time_range[1]:
+            if self._crawl_time_range[0] >= publish_time >= self._crawl_time_range[1]:
                 return TaskManager.IS_IN_TIME_RANGE
 
         if publish_time < self._crawl_time_range[1]:  # 下限
@@ -211,7 +221,8 @@ class TaskManager():
                 last_publish_time = account_task.get('last_publish_time')
                 self.record_last_article_publish_time(__biz, last_publish_time)
                 tip = '正在抓取列表'
-                url = 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz={}&scene=124#wechat_redirect'.format(__biz)
+                url = 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz={}&scene=124#wechat_redirect'.format(
+                    __biz)
             else:
                 article_task = self.get_article_task()
                 if article_task:
@@ -224,11 +235,15 @@ class TaskManager():
 
         if url:
             next_page = "{tip} 休眠 {sleep_time}s 下次刷新时间 {begin_spider_time} <script>setTimeout(function(){{window.location.href='{url}';}},{sleep_time_msec});</script>".format(
-                tip=tip and tip + ' ', sleep_time=sleep_time, begin_spider_time=tools.timestamp_to_date(tools.get_current_timestamp() + sleep_time), url=url, sleep_time_msec=sleep_time * 1000
+                tip=tip and tip + ' ', sleep_time=sleep_time,
+                begin_spider_time=tools.timestamp_to_date(tools.get_current_timestamp() + sleep_time), url=url,
+                sleep_time_msec=sleep_time * 1000
             )
         else:
             next_page = "{tip} 休眠 {sleep_time}s 下次刷新时间 {begin_spider_time} <script>setTimeout(function(){{window.location.reload();}},{sleep_time_msec});</script>".format(
-                tip=tip and tip + ' ', sleep_time=sleep_time, begin_spider_time=tools.timestamp_to_date(tools.get_current_timestamp() + sleep_time), sleep_time_msec=sleep_time * 1000
+                tip=tip and tip + ' ', sleep_time=sleep_time,
+                begin_spider_time=tools.timestamp_to_date(tools.get_current_timestamp() + sleep_time),
+                sleep_time_msec=sleep_time * 1000
             )
 
         return next_page

@@ -15,7 +15,8 @@ import yaml  # pip3 install pyyaml
 if 'python' in sys.executable:
     abs_path = lambda file: os.path.abspath(os.path.join(os.path.dirname(__file__), file))
 else:
-    abs_path = lambda file: os.path.abspath(os.path.join(os.path.dirname(sys.executable), file))  # mac 上打包后 __file__ 指定的是用户根路径，非当执行文件路径
+    abs_path = lambda file: os.path.abspath(
+        os.path.join(os.path.dirname(sys.executable), file))  # mac 上打包后 __file__ 指定的是用户根路径，非当执行文件路径
 
 config = yaml.full_load(open(abs_path('config.yaml'), encoding='utf8'))
 

@@ -1,0 +1,12 @@
+redis==2.10.6
+xlwt==1.3.0
+PyMySQL==0.9.3
+mitmproxy==5.0.1
+w3lib==1.21.0
+parsel==1.5.2
+better_exceptions==0.2.2
+requests==2.23.0
+six==1.12.0
+beautifulsoup4==4.8.2
+DBUtils==1.3
+PyYAML==5.3

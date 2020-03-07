@@ -1,12 +1,6 @@
 # 微信爬虫
-
-<!--<!--**该爬虫为基于中间人的方式，时效性不高，且可能会封号，请酌情使用。
-若需`长期``稳定``实时`监控大批量公众号，可使用如下api接口：**
-
-[http://182.92.108.94:2119/client/wechat_article/document](http://182.92.108.94:2119/client/wechat_article/document)
--->
-
-以下为部署文档，技术文档请查看：[https://t.zsxq.com/7ubmqNJ](https://t.zsxq.com/7ubmqNJ)
+__⚠️⚠️⚠️该方法因为是抓包模拟操作，因此有一定的风险⚠️⚠️⚠️__
+以下为部署文档
 
 ## 功能：
 
@@ -18,34 +12,12 @@
 - [x] 抓取评论信息
 - [x] 临时链接转永久链接
 
-打包好的执行文件下载地址
-
-[https://zbkj-service.oss-cn-beijing.aliyuncs.com/wechat/wechat_spider.zip](https://zbkj-service.oss-cn-beijing.aliyuncs.com/wechat/wechat_spider.zip)
-
 ## 特色：
 
-1. **免安装**：支持mac、window，双击软件即可执行
+1. **免安装**：一键部署运行
 2. **自动化**：只需要配置好待监控的公众号列表，启动软件后即可每日自动抓取公众号及文章等信息
 3. **好对接**：抓取到的数据使用mysql存储，方便处理数据
 4. **不漏采**：采用任务状态标记的方式，防止遗漏每一个公众号、每一篇文章
-5. **分布式**：支持多个微信号同时采集，微信客户端支持Android、iphone、Mac、Window 全平台
-
-## 数据示例
-
-**1. 公众号数据**
-![-w829](media/15584541954959.jpg)
-
-**2. 文章列表数据**
-![-w1369](media/15584542414888.jpg)
-
-**3. 文章数据**
-![-w1466](media/15584545518249.jpg)
-
-**4. 阅读点赞评论数据**
-![-w623](media/15584546784023.jpg)
-
-**5. 评论数据**
-![-w1033](media/15584547028361.jpg)
 
 ## 所需环境
 
@@ -56,34 +28,17 @@
 
 > 以下安装说明安需查看，仅作为参考。因每个人环境不同，可能安装会有些差异，可参考网上的资料
 
-### 1. 安装mysql
-#### 1.1 window
-#### 1.2 mac
-### 2. 安装redis
-#### 2.1 window
-#### 2.2 mac
-### 3. 安装证书
-
-可用浏览器访问 mitm.it 然后下载，或者百度如何安装mitmproxy证书
-
-#### 3.1 iphone
-1. 下载安装完毕后别忘记最后一步
-2. 打开设置-通用-关于本机-证书信任设置
-3. 开启mitmproxy选项。
-
-#### 3.2 android
-1. 安装完毕检查
-2. 打开设置-安全-信任的凭据
-3. 查看安装的证书是否存在
-
-#### 3.3 window
+### 1. 安装mysql并且运行
+### 2. 安装redis-server
+### 3. 安装mitmproxy证书，具体步骤参照官网https://mitmproxy.org/
+#### 3.1 window
  2. 双击运行
  3. 安装到本地计算机
  4. 需要密钥时跳过
  5. 选择“将所有的证书都放入下列存储”，接着选择“受信任的根证书颁发机构”
  6. 最后，弹出警告窗口，直接点击“是”
 
-#### 3.4 mac
+#### 3.2 mac
 2. 下载完双击安装
 3. 打开Keychain Access.app
 4. 选择login(Keychains)和Certificates(Category)中找到mitmproxy
@@ -133,27 +88,28 @@
 
 ### 4. 启动wechat-spider
 
+进入wechat-spider目录，运行`python(3) run.py`
+
 此步骤如果config里的auto_create_tables值为true时，会自动创建mysql数据表。建议首次启动时设置为true，创建完表后设置为false
-    
-### 5. 下发公众号任务
 
-![-w201](media/15584578582622.jpg)
-录入数据到wechat_account_task, 如：
-![-w503](media/15584579051963.jpg)
-只填写__biz就好, 如：MzIxNzg1ODQ0MQ==
-
-### 6. 点击任意一公众号，查看历史消息
+### 5. 点击任意一公众号，查看历史消息（需要关注，以mac为例）
 
 ![-w637](media/15584585019970.jpg)
 
 当出现如上红框中的提示信息时，说明大功告成了，过一会可以去数据库里验证数据了
 
-技术交流
-----
-若大家有什么疑问或指教，可加qq群，一起讨论问题。请备注`微信爬虫学习交流`
+第一次启动时 需要逐个访问需要爬取的公众号历史消息界面 添加成功后 每次需要爬取时只需要打开其中一个的公众号详情即可爬取所有公众号消息
 
-<img src='https://i.imgur.com/5FM26rc.png' align = 'center' width = "250" style = "margin-top:20px">
+### 6. 导出公众号数据为excel文档
 
+运行utils文件下的`export_excel.py`
+
+```shell script
+python(3) export_excel.py
+```
+![-w637](media/export_as_excel.png)
+
+如上图所示 依照指示完成即可
 
 ## 常见问题
 
@@ -177,7 +133,7 @@
 
 ### 3. 提示无任务
 
-检查 wechat_account_task 表中是否下发了__biz。可多下发几个测试
+检查 wechat_account_task 表中是否下发了__biz(微信公众号的唯一标识)。可多下发几个测试
 
 ### 4. Exception:DISCARD without MULTI
 

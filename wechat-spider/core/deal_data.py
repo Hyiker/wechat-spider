@@ -6,13 +6,14 @@ Created on 2019/5/11 6:37 PM
 ---------
 @author:
 """
-from utils.selector import Selector
 import utils.tools as tools
-from utils.log import log
 from core import data_pipeline
 from core.task_manager import TaskManager
+from utils.log import log
+from utils.selector import Selector
 
 
+# 用于处理文章相关数据
 class DealData:
     def __init__(self):
         self._task_manager = TaskManager()
@@ -138,7 +139,7 @@ class DealData:
                 is_first_article = False
 
                 if publish_timestamp and self._task_manager.is_zombie_account(
-                    publish_timestamp
+                        publish_timestamp
                 ):  # 首页检测是否为最新发布的文章 若最近未发布 则为僵尸账号
                     log.info("公众号 {} 为僵尸账号 不再监控".format(__biz))
                     self._task_manager.sign_account_is_zombie(__biz, publish_time)
@@ -170,7 +171,7 @@ class DealData:
 
             # 看是否在抓取时间范围
             publish_time_status = self._task_manager.is_in_crawl_time_range(
-                publish_time
+                __biz, publish_time
             )
             if publish_time_status == TaskManager.OVER_MIN_TIME_RANGE:
                 log.info("公众号 {} 超过采集时间范围 采集完成".format(__biz))
@@ -348,20 +349,20 @@ class DealData:
         )
         title = (
             selector.xpath('//h2[@class="rich_media_title"]/text()')
-            .extract_first(default="")
-            .strip()
+                .extract_first(default="")
+                .strip()
         )
         account = (
             selector.xpath('//a[@id="js_name"]/text()')
-            .extract_first(default="")
-            .strip()
+                .extract_first(default="")
+                .strip()
         )
         author = (
             selector.xpath(
                 '//span[@class="rich_media_meta rich_media_meta_text"]//text()'
             )
-            .extract_first(default="")
-            .strip()
+                .extract_first(default="")
+                .strip()
         )
 
         publish_timestamp = selector.re_first('n="(\d{10})"')
